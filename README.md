@@ -6,8 +6,14 @@ productivity siren, until you return to the chair.
 
 No backend. No uploads. Your camera frames never leave your browser.
 
+**Live demo:** [tutor-omega-hazel.vercel.app](https://tutor-omega-hazel.vercel.app/)
+
 ## Quick start
 
+### Try it live
+Just open the [live demo](https://tutor-omega-hazel.vercel.app/) — camera access works out of the box since it's served over HTTPS.
+
+### Run locally
 Serve the folder statically (camera access requires `localhost` or HTTPS):
 
 ```powershell
@@ -16,7 +22,8 @@ python -m http.server 4173
 
 Then open `http://localhost:4173`.
 
-You can also deploy it as-is to GitHub Pages, Netlify, Vercel, or any static host.
+### Deploy your own
+This project is deployed on Vercel and works as-is on any static host (GitHub Pages, Netlify, Vercel, etc.) — no build step or backend required.
 
 ## How it works
 
