@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Tutor is a playful camera-based focus timer that processes webcam frames locally in your browser."
+    />
+    <title>Tutor - Camera Focus Enforcer</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+  </head>
+  <body>
+    <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="site-texture" aria-hidden="true"></div>
+
+    <div class="app-shell" id="app">
+      <header class="topbar">
+        <button class="brand-button" id="homeButton" type="button" aria-label="Return to landing">
+          <span class="brand-mark">T</span>
+          <span class="brand-copy">
+            <strong>Tutor</strong>
+            <span>Focus enforcer</span>
+          </span>
+        </button>
+
+        <div class="privacy-pill">
+          <i data-lucide="shield-check" aria-hidden="true"></i>
+          <span>Your camera never leaves your browser.</span>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-button" id="statsButton" type="button" aria-label="Open stats">
+            <i data-lucide="bar-chart-3" aria-hidden="true"></i>
+          </button>
+          <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
+            <i data-lucide="settings" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="screens" aria-live="polite">
+        <section class="screen is-active" id="landingScreen" data-screen="landing" aria-labelledby="landingTitle">
+          <div class="hero-layout">
+            <div class="hero-copy">
+              <div class="hero-floaters" aria-hidden="true">
+                <span class="floater one">🔥 stay seated</span>
+                <span class="floater two">👀 local only</span>
+                <span class="floater three">⏱️ focus mode</span>
+                <span class="floater four">🛡️ zero uploads</span>
+              </div>
+              <p class="eyebrow">Client-side focus accountability</p>
+              <div class="hero-title-row">
+                <h1 id="landingTitle">Tutor</h1>
+                <img
+                  src="assets/images/tutor-mascot.svg"
+                  class="mobile-mascot"
+                  alt=""
+                  aria-hidden="true"
+                />
+              </div>
+              <p class="hero-lede">
+                A browser focus timer that notices when you vanish and escalates from polite nudge
+                to theatrical alarm mode until you return.
+              </p>
+              <div class="hero-actions">
+                <button class="primary-button" id="startSetupButton" type="button" data-magnetic="true">
+                  <i data-lucide="play" aria-hidden="true"></i>
+                  Start focusing
+                </button>
+                <button class="secondary-button" id="demoChaosButton" type="button">
+                  <i data-lucide="zap" aria-hidden="true"></i>
+                  Preview chaos
+                </button>
+              </div>
+              <div class="quick-stats" id="quickStats">
+                <article>
+                  <span class="stat-icon" aria-hidden="true">📚</span>
+                  <span id="quickSessions">0</span>
+                  <small>sessions</small>
+                </article>
+                <article>
+                  <span class="stat-icon" aria-hidden="true">🎯</span>
+                  <span id="quickFocus">0%</span>
+                  <small>avg focus</small>
+                </article>
+                <article>
+                  <span class="stat-icon" aria-hidden="true">⚡</span>
+                  <span id="quickStreak">0m</span>
+                  <small>best streak</small>
+                </article>
+                <article>
+                  <span class="stat-icon" aria-hidden="true">🔥</span>
+                  <span id="quickDailyStreak">0</span>
+                  <small>day streak</small>
+                </article>
+              </div>
+            </div>
+
+            <div class="mascot-stage" id="mascotStage">
+              <canvas class="hero-particles" id="heroParticles" aria-hidden="true"></canvas>
+              <div class="orbit-ring one" aria-hidden="true"></div>
+              <div class="orbit-ring two" aria-hidden="true"></div>
+              <img
+                src="assets/images/tutor-mascot.svg"
+                class="mascot-image"
+                id="mascotImage"
+                alt="Tutor mascot, a mischievous neon alarm clock"
+              />
+              <div class="mascot-bubble" id="mascotBubble">I am watching the chair.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="setupScreen" data-screen="setup" aria-labelledby="setupTitle">
+          <div class="setup-grid">
+            <div class="section-heading">
+              <p class="eyebrow">Session setup</p>
+              <h2 id="setupTitle">Set the timer, arm the camera, begin.</h2>
+            </div>
+
+            <div class="dial-tool">
+              <div class="duration-dial" id="durationDial" role="slider" tabindex="0" aria-valuemin="5" aria-valuemax="120" aria-valuenow="25">
+                <div class="dial-track"></div>
+                <div class="dial-thumb" id="dialThumb"></div>
+                <div class="dial-readout">
+                  <span id="durationValue">25</span>
+                  <small>minutes</small>
+                </div>
+              </div>
+              <input class="range-input" id="durationRange" type="range" min="5" max="120" value="25" step="5" aria-label="Session length in minutes" />
+            </div>
+
+            <div class="setup-options">
+              <label class="field">
+                <span>Break cadence</span>
+                <select id="breakIntervalSelect">
+                  <option value="0">Off</option>
+                  <option value="15">Every 15 minutes</option>
+                  <option value="25">Every 25 minutes</option>
+                  <option value="45">Every 45 minutes</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Short break</span>
+                <input id="breakLengthInput" type="number" min="1" max="15" step="1" value="5" />
+              </label>
+
+              <label class="field">
+                <span>Intensity</span>
+                <select id="intensitySelect">
+                  <option value="0">Chill</option>
+                  <option value="1">Normal</option>
+                  <option value="2">Chaotic</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Grace period</span>
+                <input id="graceInput" type="number" min="2" max="30" step="1" value="7" />
+              </label>
+            </div>
+
+            <div class="camera-tool">
+              <div class="camera-frame setup-camera">
+                <video id="setupVideo" playsinline muted></video>
+                <div class="camera-placeholder" id="setupCameraPlaceholder">
+                  <i data-lucide="camera" aria-hidden="true"></i>
+                  <span>Camera standby</span>
+                </div>
+                <div class="presence-glow" id="setupPresenceGlow"></div>
+              </div>
+              <div class="camera-copy">
+                <strong id="cameraStatusTitle">Camera not armed</strong>
+                <span id="cameraStatusCopy">Frames are analyzed locally for face presence or motion fallback.</span>
+              </div>
+              <button class="secondary-button" id="enableCameraButton" type="button">
+                <i data-lucide="video" aria-hidden="true"></i>
+                Enable camera
+              </button>
+            </div>
+
+            <div class="setup-actions">
+              <button class="secondary-button" id="backToLandingButton" type="button">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+                Back
+              </button>
+              <button class="primary-button" id="beginSessionButton" type="button">
+                <i data-lucide="timer" aria-hidden="true"></i>
+                Begin session
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="activeScreen" data-screen="active" aria-labelledby="activeTitle">
+          <div class="focus-layout">
+            <section class="focus-main">
+              <p class="eyebrow" id="phaseEyebrow">Focus mode</p>
+              <h2 id="activeTitle">Stay in frame. Stay in flow.</h2>
+
+              <div class="progress-ring" id="progressRing" aria-label="Session progress">
+                <div class="ring-core">
+                  <span class="time-readout" id="timeReadout">25:00</span>
+                  <small id="phaseLabel">Focus time</small>
+                </div>
+              </div>
+
+              <div class="session-controls">
+                <button class="icon-button large" id="pauseResumeButton" type="button" aria-label="Pause session">
+                  <i data-lucide="pause" aria-hidden="true"></i>
+                </button>
+                <button class="icon-button large danger" id="endSessionButton" type="button" aria-label="End session">
+                  <i data-lucide="square" aria-hidden="true"></i>
+                </button>
+              </div>
+            </section>
+
+            <aside class="focus-side">
+              <div class="camera-frame active-camera">
+                <video id="activeVideo" playsinline muted></video>
+                <div class="camera-placeholder" id="activeCameraPlaceholder">
+                  <i data-lucide="camera-off" aria-hidden="true"></i>
+                  <span>No preview</span>
+                </div>
+                <div class="presence-glow" id="activePresenceGlow"></div>
+              </div>
+
+              <div class="presence-card" id="presenceCard">
+                <div>
+                  <span class="status-dot present" id="presenceDot"></span>
+                  <strong id="presenceLabel">Present</strong>
+                </div>
+                <small id="detectionMode">Detector warming up</small>
+              </div>
+
+              <div class="streak-meter">
+                <div class="meter-label">
+                  <span>Focus streak</span>
+                  <strong id="streakValue">0:00</strong>
+                </div>
+                <div class="meter-track">
+                  <div class="meter-fill" id="streakFill"></div>
+                </div>
+              </div>
+
+              <div class="ambient-feed" id="ambientFeed" aria-live="polite"></div>
+              <div class="session-toast" id="sessionToast" aria-live="assertive" hidden></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="summaryScreen" data-screen="summary" aria-labelledby="summaryTitle">
+          <div class="summary-layout">
+            <div class="section-heading">
+              <p class="eyebrow">Session complete</p>
+              <h2 id="summaryTitle">Tutor has finished judging politely.</h2>
+            </div>
+
+            <div class="share-card" id="shareCard">
+              <div class="share-card-header">
+                <span>Tutor report</span>
+                <strong id="summaryBadge">Focus Ninja</strong>
+              </div>
+              <div class="summary-score">
+                <span id="summaryFocusPercent">0%</span>
+                <small>focus score</small>
+              </div>
+              <div class="summary-grid">
+                <article>
+                  <span id="summaryFocused">0m</span>
+                  <small>present time</small>
+                </article>
+                <article>
+                  <span id="summaryVanishes">0</span>
+                  <small>vanishes</small>
+                </article>
+                <article>
+                  <span id="summaryLongest">0m</span>
+                  <small>longest streak</small>
+                </article>
+                <article>
+                  <span id="summaryShame">0</span>
+                  <small>shame score</small>
+                </article>
+              </div>
+            </div>
+
+            <div class="summary-actions">
+              <button class="primary-button" id="newSessionButton" type="button">
+                <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+                New session
+              </button>
+              <button class="secondary-button" id="downloadShareButton" type="button">
+                <i data-lucide="download" aria-hidden="true"></i>
+                Save report card
+              </button>
+              <button class="secondary-button" id="summaryStatsButton" type="button">
+                <i data-lucide="bar-chart-3" aria-hidden="true"></i>
+                View stats
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="statsScreen" data-screen="stats" aria-labelledby="statsTitle">
+          <div class="stats-layout">
+            <div class="stats-sparkles" id="statsSparkles" aria-hidden="true"></div>
+            <div class="section-heading">
+              <p class="eyebrow">History</p>
+              <h2 id="statsTitle">Your focus trail.</h2>
+            </div>
+            <div class="stats-summary" id="statsSummary"></div>
+            <div class="panel-card heatmap-card" id="heatmapCard">
+              <div class="panel-card-header">
+                <strong>Focus calendar</strong>
+                <small>daily present time · last 8 weeks</small>
+              </div>
+              <div class="heatmap-grid" id="heatmapGrid" role="img" aria-label="Daily focus activity heatmap"></div>
+              <div class="heatmap-legend" aria-hidden="true">
+                <span>Less</span>
+                <span class="heatmap-scale"><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i></span>
+                <span>More</span>
+              </div>
+            </div>
+            <div class="panel-card chart-card" id="chartCard">
+              <div class="panel-card-header">
+                <strong>Focus % per session</strong>
+                <small>most recent on the right</small>
+              </div>
+              <div class="focus-chart" id="focusChart"></div>
+            </div>
+            <div class="panel-card badge-gallery-card" id="badgeCard">
+              <div class="panel-card-header">
+                <strong>Badge gallery</strong>
+                <small id="badgeCount"></small>
+              </div>
+              <div class="badge-grid" id="badgeGrid"></div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+            <div class="setup-actions">
+              <button class="secondary-button" id="statsBackButton" type="button">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+                Back
+              </button>
+              <button class="secondary-button danger-text" id="clearHistoryButton" type="button">
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+                Clear history
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside class="settings-drawer" id="settingsDrawer" aria-hidden="true" aria-labelledby="settingsTitle">
+      <div class="drawer-panel">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">Settings</p>
+            <h2 id="settingsTitle">Tune the chaos.</h2>
+          </div>
+          <button class="icon-button" id="closeSettingsButton" type="button" aria-label="Close settings">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <label class="field">
+          <span>Sensitivity</span>
+          <input id="sensitivityRange" type="range" min="0" max="2" value="1" step="1" />
+          <small id="sensitivityLabel">Normal</small>
+        </label>
+
+        <label class="field">
+          <span>Grace period <small class="unit-label">(seconds)</small></span>
+          <input id="settingsGraceInput" type="number" min="2" max="30" value="7" step="1" aria-describedby="graceUnitHint" />
+          <small id="graceUnitHint" class="field-hint">Seconds away before Tutor escalates.</small>
+        </label>
+
+        <label class="switch-field">
+          <span>Camera preview</span>
+          <input id="previewToggle" type="checkbox" checked />
+        </label>
+
+        <label class="switch-field">
+          <span>Sound</span>
+          <input id="muteToggle" type="checkbox" checked />
+        </label>
+
+        <div class="field">
+          <span>Sound pack</span>
+          <div class="sound-pack-row">
+            <select id="soundPackSelect" aria-label="Sound pack">
+              <option value="alarm">Classic Alarm</option>
+              <option value="cartoon">Cartoon Chaos</option>
+              <option value="meme">Meme Pack</option>
+              <option value="retro">Retro Computer</option>
+              <option value="sergeant">Drill Sergeant</option>
+              <option value="minimal">Chime only</option>
+              <option value="custom">Custom (my uploads)</option>
+            </select>
+            <button class="secondary-button small-button" id="soundPreviewButton" type="button" aria-label="Preview selected sound pack">
+              <i data-lucide="volume-2" aria-hidden="true"></i>
+              <span>Test</span>
+              <span class="waveform" id="soundPreviewWave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </button>
+          </div>
+          <small class="field-hint" id="soundPackHint">Classic Alarm: sirens and urgent beeps.</small>
+        </div>
+
+        <div class="field" id="customSoundsField" hidden>
+          <span>Custom sounds <small class="unit-label">(stored only in this browser)</small></span>
+          <label class="upload-button" for="customSoundInput">
+            <i data-lucide="upload" aria-hidden="true"></i>
+            Upload audio clip
+          </label>
+          <input id="customSoundInput" type="file" accept="audio/*" multiple hidden />
+          <ul class="custom-sound-list" id="customSoundList"></ul>
+          <small class="field-hint">Short clips work best. Files never leave your device.</small>
+        </div>
+
+        <label class="switch-field">
+          <span>Roast mode</span>
+          <input id="roastToggle" type="checkbox" />
+        </label>
+
+        <div class="privacy-note">
+          <i data-lucide="lock" aria-hidden="true"></i>
+          <span>Detection runs on this page. No frames, scores, or stats are uploaded.</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="punishment-overlay" id="punishmentOverlay" aria-hidden="true">
+      <div class="alarm-lines" aria-hidden="true"></div>
+      <img
+        src="assets/images/tutor-mascot.svg"
+        class="punishment-mascot"
+        id="punishmentMascot"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="punishment-copy">
+        <p id="punishmentTier">Tier 1</p>
+        <h2 id="punishmentTitle">Hey... where did you go?</h2>
+        <span id="punishmentMessage">Return to the camera to stop the noise.</span>
+      </div>
+    </div>
+
+    <template id="ambientMessageTemplate">
+      <span class="ambient-message"></span>
+    </template>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>

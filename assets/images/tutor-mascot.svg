@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="Tutor mascot">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5a69"/>
+      <stop offset="55%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#21f4e8"/>
+    </linearGradient>
+    <linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c1d24"/>
+      <stop offset="100%" stop-color="#101114"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <ellipse cx="210" cy="360" rx="120" ry="18" fill="#000" opacity="0.28"/>
+
+  <g filter="url(#glow)">
+    <rect x="118" y="52" width="28" height="58" rx="10" fill="#baff29" transform="rotate(-18 132 81)"/>
+    <rect x="274" y="52" width="28" height="58" rx="10" fill="#baff29" transform="rotate(18 288 81)"/>
+    <circle cx="132" cy="46" r="16" fill="#21f4e8"/>
+    <circle cx="288" cy="46" r="16" fill="#21f4e8"/>
+  </g>
+
+  <circle cx="210" cy="220" r="148" fill="url(#bodyGrad)"/>
+  <circle cx="210" cy="220" r="118" fill="url(#faceGrad)" stroke="rgba(255,255,255,0.16)" stroke-width="4"/>
+
+  <circle cx="168" cy="198" r="22" fill="#f7f2ea"/>
+  <circle cx="252" cy="198" r="22" fill="#f7f2ea"/>
+  <circle cx="174" cy="204" r="10" fill="#101114"/>
+  <circle cx="258" cy="204" r="10" fill="#101114"/>
+  <circle cx="177" cy="200" r="4" fill="#21f4e8"/>
+  <circle cx="261" cy="200" r="4" fill="#21f4e8"/>
+
+  <path d="M160 252 Q210 286 260 252" fill="none" stroke="#ff5a69" stroke-width="8" stroke-linecap="round"/>
+
+  <line x1="210" y1="102" x2="210" y2="220" stroke="#f7f2ea" stroke-width="6" stroke-linecap="round"/>
+  <line x1="210" y1="220" x2="268" y2="176" stroke="#21f4e8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="210" cy="220" r="12" fill="#ffd166" stroke="#101114" stroke-width="3"/>
+
+  <text x="210" y="318" text-anchor="middle" fill="#21f4e8" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="900">TUTOR</text>
+</svg>
